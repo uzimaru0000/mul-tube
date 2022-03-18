@@ -1,0 +1,12 @@
+{
+  "extends": ".",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "outDir": "dist",
+    "noEmit": false
+  },
+  "include": [
+    "electron/*.ts",
+    "electron/@types/*.d.ts"
+  ]
+}
