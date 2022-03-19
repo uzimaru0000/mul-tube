@@ -2,10 +2,12 @@ import { AspectRatio, Box } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
 import YouTube from 'react-youtube';
+import { useElectron } from '../lib';
 
 export default function Video() {
   const { id } = useParams();
   const playerRef = useRef<YouTube>(null);
+  const { onChangeVolume, onPlay, onStop } = useElectron();
 
   useEffect(() => {
     if (!id || !playerRef.current) {

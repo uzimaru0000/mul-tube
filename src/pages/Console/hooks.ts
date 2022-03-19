@@ -8,10 +8,12 @@ export interface State {
   player: {
     [id: string]: Player;
   };
+  chat: string | null;
 }
 
 export const initState: State = {
   player: {},
+  chat: null,
 };
 
 export type Action =
@@ -23,10 +25,22 @@ export type Action =
       };
     }
   | {
+      type: 'OPEN_CHAT';
+      payload: {
+        id: string;
+      };
+    }
+  | {
       type: 'CHANGE_VOLUME';
       payload: {
         id: string;
         volume: number;
+      };
+    }
+  | {
+      type: 'CHANGE_CHAT';
+      payload: {
+        id: string;
       };
     }
   | {
@@ -46,12 +60,16 @@ export type Action =
       payload: {
         id: string;
       };
+    }
+  | {
+      type: 'CLOSE_CHAT';
     };
 
 export const reducer = (st: State, action: Action): State => {
   switch (action.type) {
     case 'ADD_PLAYER':
       return {
+        ...st,
         player: {
           ...st.player,
           [action.payload.playerId]: {
@@ -61,8 +79,14 @@ export const reducer = (st: State, action: Action): State => {
           },
         },
       };
+    case 'OPEN_CHAT':
+      return {
+        ...st,
+        chat: action.payload.id,
+      };
     case 'CHANGE_VOLUME':
       return {
+        ...st,
         player: {
           ...st.player,
           [action.payload.id]: {
@@ -71,8 +95,14 @@ export const reducer = (st: State, action: Action): State => {
           },
         },
       };
+    case 'CHANGE_CHAT':
+      return {
+        ...st,
+        chat: action.payload.id,
+      };
     case 'PLAY_PLAYER':
       return {
+        ...st,
         player: {
           ...st.player,
           [action.payload.id]: {
@@ -83,6 +113,7 @@ export const reducer = (st: State, action: Action): State => {
       };
     case 'STOP_PLAYER':
       return {
+        ...st,
         player: {
           ...st.player,
           [action.payload.id]: {
@@ -95,7 +126,13 @@ export const reducer = (st: State, action: Action): State => {
       const { [action.payload.id]: _, ...rest } = st.player;
 
       return {
+        ...st,
         player: rest,
+      };
+    case 'CLOSE_CHAT':
+      return {
+        ...st,
+        chat: null,
       };
   }
 };

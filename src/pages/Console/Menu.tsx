@@ -10,6 +10,7 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Select,
   Slider,
   SliderFilledTrack,
   SliderThumb,
@@ -24,6 +25,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import {
+  FaCommentAlt,
   FaLink,
   FaPlay,
   FaPlus,
@@ -41,20 +43,28 @@ interface Props {
   players: {
     [id: string]: Player;
   };
+  chat: string | null;
   onAddPlayer(id: string): void;
   onChangeVolume(id: string, volume: number): void;
   onPlay(id: string): void;
   onStop(id: string): void;
   onClose(id: string): void;
+  onOpenChat(): void;
+  onChangeChat(id: string): void;
+  onCloseChat(): void;
 }
 
 export function Menu({
   players,
+  chat,
   onAddPlayer,
   onChangeVolume,
   onPlay,
   onStop,
   onClose,
+  onOpenChat,
+  onChangeChat,
+  onCloseChat,
 }: Props) {
   const [input, setInput] = useState('');
   const toast = useToast();
@@ -108,6 +118,7 @@ export function Menu({
     },
     [onClose]
   );
+  const handleOpenChat = useCallback(() => onOpenChat(), [onOpenChat]);
 
   return (
     <HStack h="full" spacing="4">
@@ -129,9 +140,17 @@ export function Menu({
             />
           </HStack>
         </FormControl>
-        <Button leftIcon={<Icon as={FaShareAlt} />} onClick={handleShare}>
-          Share
-        </Button>
+        <HStack>
+          <Button leftIcon={<Icon as={FaShareAlt} />} onClick={handleShare}>
+            Share
+          </Button>
+          <Button
+            leftIcon={<Icon as={FaCommentAlt} />}
+            onClick={handleOpenChat}
+          >
+            チャット
+          </Button>
+        </HStack>
       </VStack>
       <Box h="full" flexGrow={1}>
         <Tabs colorScheme="red">
@@ -144,6 +163,14 @@ export function Menu({
                 </HStack>
               </Tab>
             ))}
+            {chat && (
+              <Tab>
+                <HStack>
+                  <Text>Chat</Text>
+                  <CloseButton size="sm" onClick={onCloseChat} />
+                </HStack>
+              </Tab>
+            )}
           </TabList>
 
           <TabPanels>
@@ -157,6 +184,15 @@ export function Menu({
                 />
               </TabPanel>
             ))}
+            {chat && (
+              <TabPanel>
+                <ChatPanel
+                  id={chat}
+                  players={players}
+                  onChange={onChangeChat}
+                />
+              </TabPanel>
+            )}
           </TabPanels>
         </Tabs>
       </Box>
@@ -187,19 +223,21 @@ const Panel = ({ player, onChangeVolume, onStop, onPlay }: PanelProps) => {
 
   return (
     <VStack alignItems="start">
-      <InputGroup w="fit-content">
-        <InputLeftElement
-          pointerEvents="none"
-          children={<Icon as={FaLink} />}
-        />
-        <Input
-          htmlSize={40}
-          defaultValue={`https://youtube.com/watch?v=${player.id}`}
-          readOnly
-          cursor="pointer"
-          onClick={handleURLClick}
-        />
-      </InputGroup>
+      <HStack>
+        <InputGroup w="fit-content">
+          <InputLeftElement
+            pointerEvents="none"
+            children={<Icon as={FaLink} />}
+          />
+          <Input
+            htmlSize={40}
+            defaultValue={`https://youtube.com/watch?v=${player.id}`}
+            readOnly
+            cursor="pointer"
+            onClick={handleURLClick}
+          />
+        </InputGroup>
+      </HStack>
       <HStack w="full" py={2}>
         <IconButton
           aria-label="play"
@@ -235,5 +273,22 @@ const Panel = ({ player, onChangeVolume, onStop, onPlay }: PanelProps) => {
         </Slider>
       </HStack>
     </VStack>
+  );
+};
+
+type ChatPanelProps = {
+  id: string;
+  players: {
+    [id: string]: Player;
+  };
+  onChange(id: string): void;
+};
+const ChatPanel = ({ id, players, onChange }: ChatPanelProps) => {
+  return (
+    <Select value={id} onChange={(x) => onChange(x.currentTarget.value)}>
+      {Object.values(players).map((p, idx) => (
+        <option value={p.id}>{`Player ${idx + 1}`}</option>
+      ))}
+    </Select>
   );
 };

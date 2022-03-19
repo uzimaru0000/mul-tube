@@ -11,5 +11,5 @@ export const generateIPCHandler =
     const handler = (_: Electron.IpcRendererEvent, ...args: Args) => f(...args);
 
     ipcRenderer.on(key, handler as any);
-    return () => ipcRenderer.off(key, handler as any);
+    return () => void ipcRenderer.off(key, handler as any);
   };

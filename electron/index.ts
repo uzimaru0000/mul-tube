@@ -13,10 +13,12 @@ type State = {
       videoId: string;
     };
   };
+  chatWindow: BrowserWindow | null;
 };
 const state: State = {
   mainWindow: null,
   playerWindow: {},
+  chatWindow: null,
 };
 
 function getCurrentDisplay() {
@@ -81,13 +83,30 @@ function createAuthWindow() {
   return window;
 }
 
+function createChatWindow(parent: BrowserWindow) {
+  const window = new BrowserWindow({
+    parent,
+    useContentSize: true,
+    hasShadow: false,
+  });
+  window.setAspectRatio(16 / 9);
+
+  return window;
+}
+
+function openChat(window: BrowserWindow, id: string) {
+  window.loadURL(`https://www.youtube.com/live_chat?v=${id}`);
+}
+
 function calcLayout() {
   const currentDisplay = getCurrentDisplay();
   const base = {
     width: currentDisplay.workAreaSize.width,
     height: currentDisplay.workAreaSize.height * 0.8,
   };
-  const gridSize = Grid.calcGridSize(Object.values(state.playerWindow).length);
+  const gridSize = Grid.calcGridSize(
+    Object.values(state.playerWindow).length + (state.chatWindow ? 1 : 0)
+  );
   const grid = new Grid(base.width, base.height, gridSize, 16 / 9);
   const layout = grid.calcLayout();
   const offs = {
@@ -99,6 +118,13 @@ function calcLayout() {
     window.setSize(layout[idx].width, layout[idx].height);
     window.setPosition(layout[idx].x + offs.x, layout[idx].y + offs.y);
   });
+
+  if (state.chatWindow) {
+    const { width, height, x, y } =
+      layout[Object.values(state.playerWindow).length];
+    state.chatWindow.setSize(width, height);
+    state.chatWindow.setPosition(x + offs.x, y + offs.y);
+  }
 }
 
 app.whenReady().then(() => {
@@ -171,4 +197,40 @@ ipcMain.handle('AUTH', () => {
 ipcMain.handle('CLOSE', (_, windowId: string) => {
   const { window } = state.playerWindow[windowId];
   window.close();
+});
+
+ipcMain.handle('OPEN_CHAT', (_, id: string) => {
+  if (!state.mainWindow) {
+    return;
+  }
+
+  const chatWindow = createChatWindow(state.mainWindow);
+  state.chatWindow = chatWindow;
+  chatWindow.on('close', () => {
+    state.chatWindow = null;
+    calcLayout();
+    state.mainWindow?.webContents.send('CLOSE_CHAT');
+  });
+
+  calcLayout();
+  openChat(chatWindow, id);
+
+  state.mainWindow.webContents.send('OPEN_CHAT', id);
+});
+
+ipcMain.handle('CHANGE_CHAT', (_, id: string) => {
+  if (!state.chatWindow) {
+    return;
+  }
+
+  openChat(state.chatWindow, id);
+});
+
+ipcMain.handle('CLOSE_CHAT', (_) => {
+  if (!state.chatWindow) {
+    return;
+  }
+
+  state.chatWindow.close();
+  state.chatWindow = null;
 });
