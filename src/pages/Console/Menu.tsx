@@ -35,6 +35,7 @@ import {
 } from 'react-icons/fa';
 import React, { useCallback, useState } from 'react';
 import { Player } from './hooks';
+import { getVideoId, validator } from '../../lib';
 
 interface Props {
   players: {
@@ -46,13 +47,6 @@ interface Props {
   onStop(id: string): void;
   onClose(id: string): void;
 }
-
-const validator = (str: string) =>
-  /https:\/\/(www.)?youtube\.com\/watch\?v=\S{11}/.test(str);
-const getVideoId = (urlStr: string) => {
-  const url = new URL(urlStr);
-  return url.searchParams.get('v');
-};
 
 export function Menu({
   players,

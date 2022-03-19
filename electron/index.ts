@@ -44,7 +44,7 @@ function createMainWindow() {
   mainWindow.loadURL(
     isDev
       ? 'http://localhost:3000'
-      : `file://${join(__dirname, '../dist/index.html')}`
+      : `file://${join(__dirname, '../index.html')}`
   );
 
   return mainWindow;
@@ -68,7 +68,7 @@ function createVideoWindow(parent: BrowserWindow, id: string) {
   videoWindow.loadURL(
     isDev
       ? `http://localhost:3000/#/__video/${id}`
-      : `file://${join(__dirname, '../dist/index.html', '#', '__video', id)}`
+      : `file://${join(__dirname, '../index.html', '#', '__video', id)}`
   );
 
   return videoWindow;
