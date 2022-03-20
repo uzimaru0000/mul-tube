@@ -142,5 +142,6 @@ dist
 .svelte-kit
 
 # End of https://www.toptal.com/developers/gitignore/api/node
-.build
+build
 .vercel
+.DS_Store
