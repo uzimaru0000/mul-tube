@@ -8,16 +8,18 @@
     "preview": "vite preview",
     "electron": "electron ./dist/electron/index.js",
     "electron:pack": "electron-builder --dir",
-    "electron:dev": "concurrently -k \"cross-env BROWSER=none ELECTRON=true yarn dev\" \"cross-env IS_DEV=true yarn electron\"",
+    "electron:dev": "concurrently -k \"cross-env BROWSER=none ELECTRON=true yarn dev\" \"cross-env ELECTRON_IS_DEV=1 yarn electron\"",
     "electron:builder": "electron-builder",
     "build:for:electron": "tsc && cross-env ELECTRON=true vite build",
-    "app:build": "yarn build:for:electron && yarn build:electron && yarn electron:builder"
+    "app:build": "rm -rf build && yarn build:for:electron && yarn build:electron && yarn electron:builder"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.7",
     "@chakra-ui/react": "^1.8.5",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
+    "electron-deeplink": "^1.0.9",
+    "electron-is-dev": "^2.0.0",
     "framer-motion": "^6",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -43,7 +45,7 @@
     "wait-on": "^6.0.0"
   },
   "build": {
-    "productName": "MutTube",
+    "productName": "MulTube",
     "appId": "com.uzimaru.mut-tube",
     "extraMetadata": {
       "main": "./dist/electron/index.js"
@@ -55,6 +57,13 @@
       "dist",
       "node_modules",
       "package.json"
-    ]
+    ],
+    "protocols": {
+      "name": "From Web Page",
+      "schemes": [
+        "multube"
+      ],
+      "role": "Viewer"
+    }
   }
 }

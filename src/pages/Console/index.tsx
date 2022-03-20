@@ -17,6 +17,7 @@ export default function Console() {
     changeChat,
     closeChat,
     onCloseChat,
+    onOpenPlayer,
   } = useElectron();
 
   const handleAdd = useCallback(
@@ -75,10 +76,14 @@ export default function Console() {
     const closeChat = onCloseChat(() => {
       dispatch({ type: 'CLOSE_CHAT' });
     });
+    const openPlayer = onOpenPlayer((ids) => {
+      ids.forEach((id) => handleAdd(id));
+    });
 
     return () => {
       closePlayer();
       closeChat();
+      openPlayer();
     };
   }, [dispatch]);
 

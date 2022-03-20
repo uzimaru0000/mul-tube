@@ -33,7 +33,7 @@ export default function Video() {
   }, [id, playerRef]);
 
   return (
-    <div>
+    <Box>
       <Box
         sx={{ '-webkit-app-region': 'drag' }}
         position="absolute"
@@ -56,6 +56,6 @@ export default function Video() {
           }}
         />
       </AspectRatio>
-    </div>
+    </Box>
   );
 }

@@ -11,7 +11,6 @@ export const getVideoId = (urlStr: string) => {
 export const thumbnailUrl = (id: string) =>
   `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
 
-const isElectron = window.addPlayer !== undefined;
 const voidFunc = () => void 0;
 const valuableFunc =
   <T>(v: T) =>
@@ -19,6 +18,7 @@ const valuableFunc =
     v;
 export const useElectron = () => {
   const {
+    isElectron,
     addPlayer,
     changeVolume,
     playVideo,
@@ -33,11 +33,12 @@ export const useElectron = () => {
     onCloseChat,
     onPlay,
     onStop,
+    onOpenPlayer,
   } = window;
 
   return useMemo(
     () => ({
-      isElectron,
+      isElectron: isElectron ? isElectron() : false,
       addPlayer: addPlayer ?? valuableFunc(Promise.resolve('mock')),
       changeVolume: changeVolume ?? voidFunc,
       playVideo: playVideo ?? voidFunc,
@@ -52,6 +53,7 @@ export const useElectron = () => {
       onPlay: onPlay ?? voidFunc,
       onStop: onStop ?? voidFunc,
       onCloseChat: onCloseChat ?? voidFunc,
+      onOpenPlayer: onOpenPlayer ?? voidFunc,
     }),
     []
   );

@@ -1,9 +1,9 @@
 import { join } from 'path';
-import { app, BrowserWindow, ipcMain, screen } from 'electron';
+import { app, BrowserWindow, ipcMain, screen, shell } from 'electron';
 import { generateId } from './lib';
 import { Grid } from './grid';
-
-const isDev = process.env.IS_DEV == 'true' ? true : false;
+import { Deeplink } from 'electron-deeplink';
+import * as isDev from 'electron-is-dev';
 
 type State = {
   mainWindow: BrowserWindow | null;
@@ -131,6 +131,30 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) {
       state.mainWindow = createMainWindow();
     }
+  });
+
+  state.mainWindow.webContents.addListener('new-window', (e, url) => {
+    e.preventDefault();
+    shell.openExternal(url);
+  });
+
+  const deepLink = new Deeplink({
+    app,
+    mainWindow: state.mainWindow,
+    protocol: 'multube',
+    isDev,
+    electronPath: '../../node_modules/electron/dist/Electron.app',
+  });
+
+  deepLink.on('received', (link) => {
+    if (!state.mainWindow) {
+      return;
+    }
+
+    const query = new URLSearchParams(link);
+    const ids = query.getAll('vid');
+
+    state.mainWindow.webContents.send('OPEN_PLAYER', ids);
   });
 });
 

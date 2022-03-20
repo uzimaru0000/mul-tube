@@ -11,7 +11,6 @@ import {
   Image,
   Input,
   InputGroup,
-  InputRightElement,
   SimpleGrid,
   useDisclosure,
   useToast,
@@ -29,6 +28,17 @@ export default function Select() {
   const addDisabled = useMemo(() => {
     return !validator(input) || urls.includes(input);
   }, [input, urls]);
+  const openUrl = useMemo(() => {
+    const url = new URL('multube://open');
+    urls
+      .map((x) => getVideoId(x))
+      .filter((x): x is string => x !== null)
+      .forEach((id) => {
+        url.searchParams.append('vid', id);
+      });
+
+    return url.toString();
+  }, [urls]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.currentTarget.value);
@@ -51,7 +61,6 @@ export default function Select() {
       status: 'success',
     });
   }, [urls]);
-  const handleOpenApp = useCallback(() => {}, []);
 
   return (
     <Container minW="5xl" py="40">
@@ -70,22 +79,34 @@ export default function Select() {
               <IconButton
                 aria-label="add"
                 disabled={addDisabled}
-                icon={<Icon as={FaPlus} onClick={handleAdd} />}
+                icon={<Icon as={FaPlus} />}
                 roundedLeft="none"
+                onClick={handleAdd}
               />
             </InputGroup>
           </FormControl>
-          <FormControl boxShadow="base">
-            <FormLabel>Preview</FormLabel>
-            <SimpleGrid columns={Math.ceil(Math.sqrt(urls.length))} spacing={8}>
-              {urls
-                .map(getVideoId)
-                .filter((x): x is string => x !== null)
-                .map((id) => (
-                  <Image key={id} src={thumbnailUrl(id)} alt={id} w="full" />
-                ))}
-            </SimpleGrid>
-          </FormControl>
+          {urls.length !== 0 && (
+            <Box
+              w="full"
+              p="4"
+              borderColor="black.100"
+              borderWidth="1px"
+              rounded="8"
+            >
+              <FormLabel>Preview</FormLabel>
+              <SimpleGrid
+                columns={Math.ceil(Math.sqrt(urls.length))}
+                spacing={8}
+              >
+                {urls
+                  .map(getVideoId)
+                  .filter((x): x is string => x !== null)
+                  .map((id) => (
+                    <Image key={id} src={thumbnailUrl(id)} alt={id} w="full" />
+                  ))}
+              </SimpleGrid>
+            </Box>
+          )}
         </VStack>
         <Collapse in={isOpen} animateOpacity>
           <VStack gap="16">
@@ -101,7 +122,8 @@ export default function Select() {
               <Button
                 leftIcon={<Icon as={FaLaptop} />}
                 minW="xl"
-                onClick={handleOpenApp}
+                as="a"
+                href={openUrl}
               >
                 アプリで開く
               </Button>

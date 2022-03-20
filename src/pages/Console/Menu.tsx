@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  ButtonGroup,
   CloseButton,
   FormControl,
   FormLabel,
@@ -34,8 +35,9 @@ import {
   FaVolumeDown,
   FaVolumeOff,
   FaVolumeUp,
+  FaYoutube,
 } from 'react-icons/fa';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Player } from './hooks';
 import { getVideoId, validator } from '../../lib';
 
@@ -68,6 +70,12 @@ export function Menu({
 }: Props) {
   const [input, setInput] = useState('');
   const toast = useToast();
+  const inputDisabled = useMemo(() => {
+    const urls = input.split(' ').filter(validator);
+    const ids = urls.map(getVideoId).filter((x): x is string => x !== null);
+
+    return ids.length === 0;
+  }, [input]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value),
@@ -75,19 +83,9 @@ export function Menu({
   );
   const handleAddPlayer = useCallback(() => {
     setInput('');
-    const urls = input.split(' ').filter(validator);
 
+    const urls = input.split(' ');
     const ids = urls.map(getVideoId).filter((x): x is string => x !== null);
-    if (ids.length === 0) {
-      toast({
-        title: '有効なURLが有りませんでした',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
     ids.forEach((id) => onAddPlayer(id));
   }, [input, onAddPlayer]);
   const handleChangeVolume = useCallback(
@@ -125,20 +123,23 @@ export function Menu({
       <VStack alignItems="start">
         <FormControl>
           <FormLabel htmlFor="url">YouTube URL</FormLabel>
-          <HStack spacing={1}>
+          <InputGroup>
             <Input
               id="url"
               w="512px"
               placeholder="https://youtube.com/watch?v=xxxxxxxxxxx"
               onChange={handleChange}
               value={input}
+              roundedRight="none"
             />
             <IconButton
               aria-label="add"
               icon={<Icon as={FaPlus} />}
+              roundedLeft="none"
+              disabled={inputDisabled}
               onClick={handleAddPlayer}
             />
-          </HStack>
+          </InputGroup>
         </FormControl>
         <HStack>
           <Button leftIcon={<Icon as={FaShareAlt} />} onClick={handleShare}>
@@ -207,37 +208,14 @@ type PanelProps = {
   onPlay: () => void;
 };
 const Panel = ({ player, onChangeVolume, onStop, onPlay }: PanelProps) => {
-  const toast = useToast();
-  const handleURLClick = useCallback(async () => {
-    await navigator.clipboard.writeText(
-      `https://youtube.com/watch?v=${player.id}`
-    );
-
-    toast({
-      title: 'URLをコピーしました',
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
-  }, [toast, player]);
-
   return (
     <VStack alignItems="start">
-      <HStack>
-        <InputGroup w="fit-content">
-          <InputLeftElement
-            pointerEvents="none"
-            children={<Icon as={FaLink} />}
-          />
-          <Input
-            htmlSize={40}
-            defaultValue={`https://youtube.com/watch?v=${player.id}`}
-            readOnly
-            cursor="pointer"
-            onClick={handleURLClick}
-          />
-        </InputGroup>
-      </HStack>
+      <Button
+        as="a"
+        target="_blank"
+        leftIcon={<Icon as={FaYoutube} />}
+        href={`https://youtube.com/watch?v=${player.id}`}
+      >{`https://youtube.com/watch?v=${player.id}`}</Button>
       <HStack w="full" py={2}>
         <IconButton
           aria-label="play"

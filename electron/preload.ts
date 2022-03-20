@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { generateIPCHandler } from './lib';
 
 const context = {
+  isElectron: () => true,
   addPlayer: (id: string) => {
     return ipcRenderer.invoke('ADD_PLAYER', id);
   },
@@ -35,6 +36,7 @@ const context = {
   onStop: generateIPCHandler<[]>('STOP'),
   onOpenChat: generateIPCHandler<[string]>('OPEN_CHAT'),
   onCloseChat: generateIPCHandler<[]>('CLOSE_CHAT'),
+  onOpenPlayer: generateIPCHandler<[string[]]>('OPEN_PLAYER'),
 };
 
 Object.entries(context).forEach(([key, val]) => {
