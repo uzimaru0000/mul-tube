@@ -29,7 +29,7 @@ const context = {
   closeChat: () => {
     ipcRenderer.invoke('CLOSE_CHAT');
   },
-  onChangeVolume: generateIPCHandler<[string, number]>('CHANGE_VOLUME'),
+  onChangeVolume: generateIPCHandler<[number]>('CHANGE_VOLUME'),
   onCloseWindow: generateIPCHandler<[string]>('CLOSE_PLAYER'),
   onPlay: generateIPCHandler<[]>('PLAY'),
   onStop: generateIPCHandler<[]>('STOP'),

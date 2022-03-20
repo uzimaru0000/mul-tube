@@ -44,9 +44,7 @@ function createMainWindow() {
     resizable: false,
   });
   mainWindow.loadURL(
-    isDev
-      ? 'http://localhost:3000'
-      : `file://${join(__dirname, '../index.html')}`
+    isDev ? 'http://localhost:3000' : `https://mul-tube.uzimaru.com`
   );
 
   return mainWindow;
@@ -70,7 +68,7 @@ function createVideoWindow(parent: BrowserWindow, id: string) {
   videoWindow.loadURL(
     isDev
       ? `http://localhost:3000/#/__video/${id}`
-      : `file://${join(__dirname, '../index.html', '#', '__video', id)}`
+      : `https://mul-tube.uzimaru.com/#/__video/${id}`
   );
 
   return videoWindow;
@@ -143,6 +141,8 @@ app.on('window-all-closed', () => {
 });
 
 ipcMain.handle('ADD_PLAYER', (_, id: string) => {
+  console.log(state);
+
   if (state.mainWindow) {
     if (
       Object.values(state.playerWindow)
@@ -154,6 +154,8 @@ ipcMain.handle('ADD_PLAYER', (_, id: string) => {
 
     const windowId = generateId();
     const player = createVideoWindow(state.mainWindow, id);
+
+    console.log(player);
 
     state.playerWindow[windowId] = {
       window: player,
@@ -176,16 +178,28 @@ ipcMain.handle('ADD_PLAYER', (_, id: string) => {
 });
 
 ipcMain.handle('CHANGE_VOLUME', (_, windowId: string, volume: number) => {
+  if (!state.playerWindow[windowId]) {
+    return;
+  }
+
   const { window } = state.playerWindow[windowId];
   window.webContents.send('CHANGE_VOLUME', volume);
 });
 
 ipcMain.handle('PLAY', (_, windowId: string) => {
+  if (!state.playerWindow[windowId]) {
+    return;
+  }
+
   const { window } = state.playerWindow[windowId];
   window.webContents.send('PLAY');
 });
 
 ipcMain.handle('STOP', (_, windowId: string) => {
+  if (!state.playerWindow[windowId]) {
+    return;
+  }
+
   const { window } = state.playerWindow[windowId];
   window.webContents.send('STOP');
 });
@@ -195,6 +209,10 @@ ipcMain.handle('AUTH', () => {
 });
 
 ipcMain.handle('CLOSE', (_, windowId: string) => {
+  if (!state.playerWindow[windowId]) {
+    return;
+  }
+
   const { window } = state.playerWindow[windowId];
   window.close();
 });
