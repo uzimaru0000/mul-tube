@@ -141,8 +141,6 @@ app.on('window-all-closed', () => {
 });
 
 ipcMain.handle('ADD_PLAYER', (_, id: string) => {
-  console.log(state);
-
   if (state.mainWindow) {
     if (
       Object.values(state.playerWindow)
@@ -154,8 +152,6 @@ ipcMain.handle('ADD_PLAYER', (_, id: string) => {
 
     const windowId = generateId();
     const player = createVideoWindow(state.mainWindow, id);
-
-    console.log(player);
 
     state.playerWindow[windowId] = {
       window: player,
