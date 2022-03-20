@@ -7,6 +7,7 @@ import { Menu } from './Menu';
 export default function Console() {
   const [state, dispatch] = useReducer(reducer, initState);
   const {
+    ready,
     addPlayer,
     changeVolume,
     playVideo,
@@ -67,6 +68,10 @@ export default function Console() {
   }, []);
   const handleCloseChat = useCallback(() => {
     closeChat();
+  }, []);
+
+  useEffect(() => {
+    ready('MAIN');
   }, []);
 
   useEffect(() => {

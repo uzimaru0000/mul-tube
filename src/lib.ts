@@ -19,6 +19,7 @@ const valuableFunc =
 export const useElectron = () => {
   const {
     isElectron,
+    ready,
     addPlayer,
     changeVolume,
     playVideo,
@@ -39,6 +40,7 @@ export const useElectron = () => {
   return useMemo(
     () => ({
       isElectron: isElectron ? isElectron() : false,
+      ready: ready ?? voidFunc,
       addPlayer: addPlayer ?? valuableFunc(Promise.resolve('mock')),
       changeVolume: changeVolume ?? voidFunc,
       playVideo: playVideo ?? voidFunc,

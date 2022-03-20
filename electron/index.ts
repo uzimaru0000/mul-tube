@@ -1,9 +1,16 @@
 import { join } from 'path';
 import { app, BrowserWindow, ipcMain, screen, shell } from 'electron';
+import * as isDev from 'electron-is-dev';
+import * as log from 'electron-log';
+
 import { generateId } from './lib';
 import { Grid } from './grid';
-import { Deeplink } from 'electron-deeplink';
-import * as isDev from 'electron-is-dev';
+import setUpDeepLink from './deepLink';
+
+process.on('uncaughtException', (err) => {
+  log.error(err);
+  app.quit();
+});
 
 type State = {
   mainWindow: BrowserWindow | null;
@@ -46,6 +53,10 @@ function createMainWindow() {
   mainWindow.loadURL(
     isDev ? 'http://localhost:3000' : `https://mul-tube.uzimaru.com`
   );
+  mainWindow.webContents.addListener('new-window', (e, url) => {
+    e.preventDefault();
+    shell.openExternal(url);
+  });
 
   return mainWindow;
 }
@@ -125,42 +136,42 @@ function calcLayout() {
   }
 }
 
-app.whenReady().then(() => {
-  state.mainWindow = createMainWindow();
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      state.mainWindow = createMainWindow();
-    }
-  });
+setUpDeepLink(async (url) => {
+  log.info('open link', url);
+  if (!state.mainWindow) {
+    state.mainWindow = createMainWindow();
+  }
 
-  state.mainWindow.webContents.addListener('new-window', (e, url) => {
-    e.preventDefault();
-    shell.openExternal(url);
-  });
+  const { mainWindow } = state;
+  const query = new URL(url).searchParams;
+  const ids = query.getAll('vid');
 
-  const deepLink = new Deeplink({
-    app,
-    mainWindow: state.mainWindow,
-    protocol: 'multube',
-    isDev,
-    electronPath: '../../node_modules/electron/dist/Electron.app',
-  });
-
-  deepLink.on('received', (link) => {
-    if (!state.mainWindow) {
+  mainWindow?.webContents.send('OPEN_PLAYER', ids);
+  ipcMain.on('READY', (_, type: string) => {
+    if (type !== 'MAIN') {
       return;
     }
 
-    const query = new URLSearchParams(link);
-    const ids = query.getAll('vid');
+    mainWindow?.webContents.send('OPEN_PLAYER', ids);
+  });
+});
 
-    state.mainWindow.webContents.send('OPEN_PLAYER', ids);
+app.whenReady().then(() => {
+  log.info('ready');
+
+  state.mainWindow = state.mainWindow ?? createMainWindow();
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      state.mainWindow = createMainWindow();
+    }
   });
 });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
+  } else {
+    state.mainWindow = null;
   }
 });
 

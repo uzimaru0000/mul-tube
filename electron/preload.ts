@@ -3,6 +3,9 @@ import { generateIPCHandler } from './lib';
 
 const context = {
   isElectron: () => true,
+  ready: (type: string) => {
+    ipcRenderer.send('READY', type);
+  },
   addPlayer: (id: string) => {
     return ipcRenderer.invoke('ADD_PLAYER', id);
   },
