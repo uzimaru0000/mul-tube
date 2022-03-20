@@ -1,4 +1,5 @@
 import {
+  AspectRatio,
   Box,
   Button,
   Center,
@@ -17,7 +18,13 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import React, { useCallback, useMemo, useState } from 'react';
-import { FaArrowDown, FaLaptop, FaPlus, FaShareAlt } from 'react-icons/fa';
+import {
+  FaArrowDown,
+  FaLaptop,
+  FaPlus,
+  FaQuestion,
+  FaShareAlt,
+} from 'react-icons/fa';
 import { getVideoId, thumbnailUrl, validator } from '../../lib';
 
 export default function Select() {
@@ -104,6 +111,23 @@ export default function Select() {
                   .map((id) => (
                     <Image key={id} src={thumbnailUrl(id)} alt={id} w="full" />
                   ))}
+                {[
+                  ...Array(
+                    Math.ceil(Math.sqrt(urls.length)) ** 2 - urls.length
+                  ),
+                ].map(() => (
+                  <AspectRatio ratio={16 / 9}>
+                    <Box w="full" h="4" bg="gray.300">
+                      <Center>
+                        <Icon
+                          boxSize="20"
+                          color="blackAlpha.500"
+                          as={FaQuestion}
+                        />
+                      </Center>
+                    </Box>
+                  </AspectRatio>
+                ))}
               </SimpleGrid>
             </Box>
           )}
