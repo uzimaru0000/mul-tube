@@ -1,11 +1,11 @@
 import { join } from 'path';
 import { app, BrowserWindow, ipcMain, screen, shell } from 'electron';
+import { Deeplink } from 'electron-deeplink';
 import * as isDev from 'electron-is-dev';
 import * as log from 'electron-log';
 
 import { generateId } from './lib';
 import { Grid } from './grid';
-import setUpDeepLink from './deepLink';
 
 process.on('uncaughtException', (err) => {
   log.error(err);
@@ -56,6 +56,11 @@ function createMainWindow() {
   mainWindow.webContents.addListener('new-window', (e, url) => {
     e.preventDefault();
     shell.openExternal(url);
+  });
+  mainWindow.on('close', () => {
+    state.mainWindow = null;
+    state.playerWindow = {};
+    ipcMain.removeAllListeners('READY');
   });
 
   return mainWindow;
@@ -136,8 +141,14 @@ function calcLayout() {
   }
 }
 
-setUpDeepLink(async (url) => {
-  log.info('open link', url);
+const deepLink = new Deeplink({
+  protocol: 'multube',
+  app,
+  mainWindow: state.mainWindow!,
+  isDev,
+  electronPath: '../../node_modules/electron/dist/Electron.app',
+});
+deepLink.on('received', async (url) => {
   if (!state.mainWindow) {
     state.mainWindow = createMainWindow();
   }
@@ -157,8 +168,6 @@ setUpDeepLink(async (url) => {
 });
 
 app.whenReady().then(() => {
-  log.info('ready');
-
   state.mainWindow = state.mainWindow ?? createMainWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
