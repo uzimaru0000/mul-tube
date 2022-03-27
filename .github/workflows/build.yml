@@ -21,7 +21,7 @@ jobs:
       - name: build application
         run: yarn app:build --mac
         env:
-          GH_TOKAN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKAN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: create release
         uses: softprops/action-gh-release@v1
@@ -49,7 +49,7 @@ jobs:
       - name: build application
         run: yarn app:build --win --x64
         env:
-          GH_TOKAN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKAN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: create release
         uses: softprops/action-gh-release@v1
