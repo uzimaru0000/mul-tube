@@ -1,5 +1,7 @@
 {
   "name": "mul-tube",
+  "author": "uzimaru0000",
+  "description": "An application for managing multiple windows on YouTube",
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
@@ -65,12 +67,6 @@
         "multube"
       ],
       "role": "Viewer"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "uzimaru0000",
-      "repo": "mul-tube",
-      "releaseType": "release"
     }
   }
 }
