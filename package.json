@@ -65,6 +65,12 @@
         "multube"
       ],
       "role": "Viewer"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "uzimaru0000",
+      "repo": "mul-tube",
+      "releaseType": "release"
     }
   }
 }
