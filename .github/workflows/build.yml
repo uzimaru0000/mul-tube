@@ -31,7 +31,7 @@ jobs:
           files: |
             build/*.dmg
         env:
-          GITHUB_TOKAN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build_on_win:
     runs-on: windows-latest
@@ -49,7 +49,7 @@ jobs:
       - name: build application
         run: yarn app:build --win --x64
         env:
-          GITHUB_TOKAN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: create release
         uses: softprops/action-gh-release@v1
